@@ -757,6 +757,15 @@ func (w *Worktree) RemoveGlob(pattern string) error {
 		return err
 	}
 
+	if len(entries) == 0 {
+		dirPrefix := strings.TrimSuffix(filepath.ToSlash(pattern), "/") + "/"
+		for _, e := range idx.Entries {
+			if strings.HasPrefix(e.Name, dirPrefix) {
+				entries = append(entries, e)
+			}
+		}
+	}
+
 	for _, e := range entries {
 		file := filepath.FromSlash(e.Name)
 		if _, err := w.filesystem.Lstat(file); err != nil && !os.IsNotExist(err) {
